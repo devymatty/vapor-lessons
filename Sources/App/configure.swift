@@ -18,13 +18,12 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     services.register(middlewares)
     
     // Configure a database
-    let postgresqlConfig = PostgreSQLDatabaseConfig(hostname: "rc1a-av0q6o9infcnetau.mdb.yandexcloud.net",
-                                                  port: 6432,
-                                                  username: "user1",
-                                                  database: "vapor-2",
-                                                  password: "12345678",
-                                                  transport: .unverifiedTLS)
-    
+    let postgresqlConfig = PostgreSQLDatabaseConfig(hostname: "database.v2.vapor.cloud",
+                                                  port: 30001,
+                                                  username: "ua6fcc76295088de6229783f8a69dfb2",
+                                                  database: "df7ea1b8ce2a9631",
+                                                  password: "pac683f80f6dd8fda1a9af8a3120b22b")
+
     let postgresql = PostgreSQLDatabase(config: postgresqlConfig)
 
     // Register the configured database to the database config.
