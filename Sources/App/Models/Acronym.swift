@@ -15,8 +15,6 @@ final class Acronym: Codable {
 }
 
 extension Acronym: PostgreSQLModel {}
-// Нужно для поддержки миграции
-//extension Acronym: Migration {}
 // Используется чтобы получать данную структуру из запроса
 extension Acronym: Content {}
 // Используется чтобы получать как параметр из запроса по айди “at /api/acronyms/<ID> "
@@ -25,6 +23,10 @@ extension Acronym: Parameter {}
 extension Acronym {
     var user: Parent<Acronym, User> {
         return parent(\.userID)
+    }
+    
+    var categories: Siblings<Acronym, Category, AcronymCategoryPivot> {
+        return siblings()
     }
 }
 

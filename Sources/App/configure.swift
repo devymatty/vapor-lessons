@@ -18,17 +18,30 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     services.register(middlewares)
     
     // Configure a database
-    let postgresqlConfig = PostgreSQLDatabaseConfig(hostname: "database.v2.vapor.cloud",
-                                                  port: 30001,
-                                                  username: "ua6fcc76295088de6229783f8a69dfb2",
-                                                  database: "df7ea1b8ce2a9631",
-                                                  password: "pac683f80f6dd8fda1a9af8a3120b22b")
-
-    let postgresql = PostgreSQLDatabase(config: postgresqlConfig)
-
-    // Register the configured database to the database config.
     var databases = DatabasesConfig()
-    databases.add(database: postgresql, as: .psql)
+    let hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
+    let databaseName: String
+    let databasePort: Int
+    if (env == .testing) {
+        databaseName = "vapor-test"
+        if let testPort = Environment.get("DATABASE_PORT") {
+            databasePort = Int(testPort) ?? 5433
+        } else {
+            databasePort = 5433
+        }
+    } else {
+        databaseName = "vapor"
+        databasePort = 5432
+    }
+    
+    let databaseConfig = PostgreSQLDatabaseConfig(
+        hostname: hostname,
+        port: databasePort,
+        username: "vapor",
+        database: databaseName,
+        password: "password")
+    let database = PostgreSQLDatabase(config: databaseConfig)
+    databases.add(database: database, as: .psql)
     services.register(databases)
     
     // Configure migrations
@@ -36,5 +49,10 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(model: User.self, database: .psql)
     migrations.add(model: Acronym.self, database: .psql)
     migrations.add(model: Category.self, database: .psql)
+    migrations.add(model: AcronymCategoryPivot.self, database: .psql)
     services.register(migrations)
+    
+    var commandConfig = CommandConfig.default()
+    commandConfig.useFluentCommands()
+    services.register(commandConfig)
 }
