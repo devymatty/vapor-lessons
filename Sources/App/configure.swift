@@ -19,27 +19,39 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     // Configure a database
     var databases = DatabasesConfig()
-    let hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
+    let hostname: String
     let databaseName: String
     let databasePort: Int
+    let databaseUsername: String
+    let databasePassword: String
+    
     if (env == .testing) {
+        hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
         databaseName = "vapor-test"
+        databaseUsername = "vapor"
+        databasePassword = "password"
+
         if let testPort = Environment.get("DATABASE_PORT") {
             databasePort = Int(testPort) ?? 5433
         } else {
             databasePort = 5433
         }
     } else {
-        databaseName = "vapor"
+        hostname = "ec2-79-125-4-72.eu-west-1.compute.amazonaws.com"
+        databaseName = "dcqr2mjbgjqiao"
         databasePort = 5432
+        databaseUsername = "pdkfujlrwxrzlq"
+        databasePassword = "6e8cb3e3769786f88f3f373628318e980a678f614efbe49395fa7c1970b3e0d1"
     }
     
     let databaseConfig = PostgreSQLDatabaseConfig(
         hostname: hostname,
         port: databasePort,
-        username: "vapor",
+        username: databaseUsername,
         database: databaseName,
-        password: "password")
+        password: databasePassword,
+        transport: .unverifiedTLS)
+    
     let database = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: database, as: .psql)
     services.register(databases)
