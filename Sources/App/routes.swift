@@ -8,11 +8,6 @@ public func routes(_ router: Router) throws {
         return "It works!"
     }
     
-    // Basic "Hello, world!" example
-    router.get("hello") { req in
-        return "Hello, world!"
-    }
-    
     let acronymsController = AcronymsController()
     try router.register(collection: acronymsController)
     
@@ -22,4 +17,6 @@ public func routes(_ router: Router) throws {
     let categoriesController = CategoriesController()
     try router.register(collection: categoriesController)
     
+    let websiteController = WebsiteController()
+    try router.register(collection: websiteController)
 }
