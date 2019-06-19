@@ -80,6 +80,30 @@ struct WebsiteController: RouteCollection {
             return req.redirect(to: "/acronyms/\(id)")
         }
     }
+    
+    func editAcronymHandler(_ req: Request) throws -> Future<View> {
+        return try req.parameters.next(Acronym.self).flatMap(to: View.self) { acronym in
+            let context = EditAcronymContext(acronym: acronym, users: User.query(on: req).all())
+            return try req.view().render("createAcronym", context)
+        }
+    }
+    
+    func editAcronymPostHandler(_ req: Request) throws -> Future<Response> {
+        return try flatMap(to: Response.self, req.parameters.next(Acronym.self), req.content.decode(Acronym.self)) { acronym, data in
+            acronym.short = data.short
+            acronym.long = data.long
+            acronym.userID = data.userID
+            
+            guard let id = acronym.id else {
+                throw Abort(.internalServerError)
+            }
+            
+            let redirect = req.redirect(to: "/acronyms/\(id)")
+            
+            return acronym.save(on: req).transform(to: redirect)
+        }
+        
+    }
 }
 
 struct IndexContext: Encodable {
@@ -118,4 +142,11 @@ struct CategoryContext: Encodable {
 struct CreateAcronymContext: Encodable {
     let title = "Create An Acronym"
     let users: Future<[User]>
+}
+
+struct EditAcronymContext: Encodable {
+    let title = "Edit Acronym"
+    let acronym: Acronym
+    let users: Future<[User]>
+    let editing = true
 }
