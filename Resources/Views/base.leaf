@@ -35,16 +35,13 @@
         <li class="nav-item #if(title == "Create An Acronym"){active}">
           <a href="/acronyms/create" class="nav-link">Create An Acronym</a>
         </li>
-
         <li class="nav-item #if(title == "Register"){active}">
           <a href="/register" class="nav-link">Register</a>
         </li>
-
-
       </ul>
       #if(userLoggedIn) {
-        <form class="form-inline" action="/logout" method="post">
-          <input class="nav-link btn" type="submit" value="Log out"
+        <form class="form-inline" action="/logout" method="POST">
+          <input class="nav-link btn" type="submit" value="Log out">
         </form>
       }
     </div>
