@@ -20,8 +20,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     // Register middleware
     var middlewares = MiddlewareConfig() // Create _empty_ middleware config
-     middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
+    middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
+    middlewares.use(SessionsMiddleware.self)
     services.register(middlewares)
     
     // Configure a database
@@ -31,24 +32,28 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     let databasePort: Int
     let databaseUsername: String
     let databasePassword: String
+    let transportConfig: PostgreSQLConnection.TransportConfig
+    
+    let tls = TLSConfiguration.forClient(certificateVerification: .none)
     
     if (env == .testing) {
         hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
         databaseName = "vapor-test"
         databaseUsername = "vapor"
         databasePassword = "password"
-
+        transportConfig = .cleartext
         if let testPort = Environment.get("DATABASE_PORT") {
             databasePort = Int(testPort) ?? 5433
         } else {
             databasePort = 5433
         }
     } else {
-        hostname = "ec2-79-125-4-72.eu-west-1.compute.amazonaws.com"
-        databaseName = "dcqr2mjbgjqiao"
-        databasePort = 5432
-        databaseUsername = "pdkfujlrwxrzlq"
-        databasePassword = "6e8cb3e3769786f88f3f373628318e980a678f614efbe49395fa7c1970b3e0d1"
+        hostname = "rc1a-h5aqlve8skbpj6es.mdb.yandexcloud.net"
+        databaseName = "server-side-swift-with-vapor"
+        databasePort = 6432
+        databaseUsername = "user_admin"
+        databasePassword = "1q2w3e4r"
+        transportConfig = .customTLS(tls) //.unverifiedTLS
     }
     
     let databaseConfig = PostgreSQLDatabaseConfig(
@@ -57,7 +62,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
         username: databaseUsername,
         database: databaseName,
         password: databasePassword,
-        transport: .unverifiedTLS)
+        transport: transportConfig)
     
     let database = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: database, as: .psql)
@@ -76,4 +81,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var commandConfig = CommandConfig.default()
     commandConfig.useFluentCommands()
     services.register(commandConfig)
+    
+    
+    config.prefer(MemoryKeyedCache.self, for: KeyedCache.self)
 }

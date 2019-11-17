@@ -161,11 +161,15 @@ final class AcronymTests: XCTestCase {
     let acronym = try Acronym.create(on: conn)
 
     let request1URL = "\(acronymsURI)\(acronym.id!)/categories/\(category.id!)"
-    _ = try app.sendRequest(to: request1URL, method: .POST,
-        loggedInRequest: true)
+    _ = try app.sendRequest(to: request1URL,
+                            method: .POST,
+                            loggedInRequest: true)
+
     
-    _ = try app.sendRequest(to: "\(acronymsURI)\(acronym.id!)/categories/\(category.id!)", method: .POST)
-    _ = try app.sendRequest(to: "\(acronymsURI)\(acronym.id!)/categories/\(category2.id!)", method: .POST)
+    let request2URL = "\(acronymsURI)\(acronym.id!)/categories/\(category2.id!)"
+    _ = try app.sendRequest(to: request2URL,
+                            method: .POST,
+                            loggedInRequest: true)
 
     let categories = try app.getResponse(to: "\(acronymsURI)\(acronym.id!)/categories", decodeTo: [App.Category].self)
 
@@ -175,7 +179,11 @@ final class AcronymTests: XCTestCase {
     XCTAssertEqual(categories[1].id, category2.id)
     XCTAssertEqual(categories[1].name, category2.name)
 
-    _ = try app.sendRequest(to: "\(acronymsURI)\(acronym.id!)/categories/\(category.id!)", method: .DELETE)
+    let request3URL = "\(acronymsURI)\(acronym.id!)/categories/\(category.id!)"
+    _ = try app.sendRequest(to: request3URL,
+                            method: .DELETE,
+                            loggedInRequest: true)
+
     let newCategories = try app.getResponse(to: "\(acronymsURI)\(acronym.id!)/categories", decodeTo: [App.Category].self)
 
     XCTAssertEqual(newCategories.count, 1)
